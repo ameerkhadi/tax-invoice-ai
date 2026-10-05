@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><title>VAT Review Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>body{font-family:Segoe UI,Arial,sans-serif;background:#f4f6f9;color:#1d2433;margin:22px}h1{color:#0b3c6e;margin:0}
+.sub{color:#5b6573;margin:4px 0 16px}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.k{background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e3e1da}.k b{font-size:22px;display:block;color:#0b3c6e}
+.grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;margin-top:12px}.c{background:#fff;border-radius:10px;padding:12px;border:1px solid #e3e1da}
+table{border-collapse:collapse;width:100%;font-size:12.5px}td,th{border-bottom:1px solid #eee;padding:5px;text-align:left}
+code{background:#eef2f7;padding:2px 6px;border-radius:4px;font-size:12px}.warn{color:#b23b3b}</style></head><body>
+<h1>VAT Review Dashboard</h1><div class="sub">Synthetic supplier invoices 2026 · Python ETL + rule engine + SQL model ·
+Excel export · AI assistant with auditable SQL · rates are configurable examples, not tax advice</div>
+<div class="kpis"><div class="k">Invoices<b>612</b></div><div class="k">Net amount (SEK)<b>4,362,849</b></div>
+<div class="k">VAT (SEK)<b>505,383</b></div><div class="k">Invoices flagged<b class="warn">114</b></div>
+<div class="k">High-severity issues<b class="warn">118</b></div></div>
+<div class="grid"><div class="c"><b>VAT per month (SEK)</b><canvas id="m"></canvas></div>
+<div class="c"><b>VAT by class</b><canvas id="v"></canvas></div><div class="c"><b>Issues by rule</b><canvas id="r"></canvas></div></div>
+<div class="c" style="margin-top:12px"><b>Ask the data:</b> “Which invoices have wrong VAT?” → Invoices with VAT errors
+(38 rows)<br><code>SELECT i.invoice_id, v.supplier_name, v.vat_class, v.net_amount, v.vat_amount, i.detail FROM issue i JOIN invoice v USING(invoice_id) WHERE rule=&#x27;vat_mismatch&#x27; ORDER BY ABS(v.vat_amount) DESC LIMIT 200</code><table><tr><th>invoice_id</th><th>supplier_name</th><th>vat_class</th><th>net_amount</th><th>vat_amount</th><th>detail</th></tr><tr><td>INV-202600357</td><td>Vasavasa Service AB</td><td>reduced_1</td><td>190335.61</td><td>23022.35</td><td>VAT 23022.35 vs expected 22840.27 (diff +182.08)</td></tr><tr><td>INV-202600036</td><td>Strandkron Media AB</td><td>reduced_1</td><td>28663.1</td><td>3277.92</td><td>VAT 3277.92 vs expected 3439.57 (diff -161.65)</td></tr><tr><td>INV-2026D6514</td><td>Strandvasa Data AB</td><td>reduced_2</td><td>15202.23</td><td>1824.27</td><td>VAT 1824.27 looks like reduced_1 rate; expected 912.13 (reduced_2)</td></tr><tr><td>INV-202600135</td><td>Strandvasa Data AB</td><td>reduced_2</td><td>15202.23</td><td>1824.27</td><td>VAT 1824.27 looks like reduced_1 rate; expected 912.13 (reduced_2)</td></tr><tr><td>INV-202600316</td><td>Fjällstrand Konsult AB</td><td>reduced_2</td><td>5605.24</td><td>1401.31</td><td>VAT 1401.31 looks like standard rate; expected 336.31 (reduced_2)</td></tr><tr><td>INV-202600089</td><td>Kronek Konsult AB</td><td>standard</td><td>4589.39</td><td>1191.22</td><td>VAT 1191.22 vs expected 1147.35 (diff +43.87)</td></tr></table></div>
+<script>
+const M=[["2026-01", 61698.0], ["2026-02", 75366.0], ["2026-03", 65128.0], ["2026-04", 46471.0], ["2026-05", 35973.0], ["2026-06", 35319.0], ["2026-07", 113298.0], ["2026-08", 34542.0], ["2026-09", 37587.0]],V=[["standard", 228324.0], ["reduced_1", 223790.0], ["reduced_2", 50114.0], ["exempt", 3155.0]],R=[["invalid_org_number", 55], ["vat_mismatch", 38], ["missing_field", 13], ["possible_duplicate", 12], ["unusually_large", 9]];
+new Chart(m,{type:'bar',data:{labels:M.map(x=>x[0]),datasets:[{data:M.map(x=>x[1]),backgroundColor:'#0b3c6e'}]},options:{plugins:{legend:{display:false}}}});
+new Chart(v,{type:'doughnut',data:{labels:V.map(x=>x[0]),datasets:[{data:V.map(x=>x[1]),backgroundColor:['#0b3c6e','#5b8cc8','#e9a23b','#c9d3de']}]}});
+new Chart(r,{type:'bar',data:{labels:R.map(x=>x[0]),datasets:[{data:R.map(x=>x[1]),backgroundColor:'#b23b3b'}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+</script></body></html>
